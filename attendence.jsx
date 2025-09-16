@@ -281,7 +281,8 @@ const AttendanceChart = ({ breakdown }) => {
     const chartInstance = useRef(null);
 
     useEffect(() => {
-        if (chartContainer.current && breakdown) {
+        // Ensure window.Chart is available before using it
+        if (chartContainer.current && breakdown && typeof window.Chart !== 'undefined') {
             if (chartInstance.current) {
                 chartInstance.current.destroy();
             }
@@ -343,6 +344,26 @@ export default function App() {
     const [currentUser, setCurrentUser] = useState(null);
     const [showLogin, setShowLogin] = useState(false);
 
+    useEffect(() => {
+        // Dynamically load the Chart.js script to make it available globally
+        const scriptId = 'chartjs-script';
+        if (document.getElementById(scriptId)) {
+            return; 
+        }
+        const script = document.createElement('script');
+        script.id = scriptId;
+        script.src = "https://cdn.jsdelivr.net/npm/chart.js";
+        script.async = true;
+        document.body.appendChild(script);
+
+        return () => {
+            const existingScript = document.getElementById(scriptId);
+            if (existingScript) {
+                document.body.removeChild(existingScript);
+            }
+        };
+    }, []);
+
     const handleLogin = (user) => {
         setCurrentUser(user);
         setShowLogin(false);
@@ -379,3 +400,5 @@ export default function App() {
         </>
     );
 }
+
+
